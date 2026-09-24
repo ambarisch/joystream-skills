@@ -1,6 +1,6 @@
 ---
 name: notion-x-post-queue
-description: Publish every "Ready to Post" Twitter row for a given persona from a Notion content database to X, then write the result back to each row (Status "Done" plus Post URL on success, or an Error description on failure). Use this skill whenever an agent needs to work through a Notion posting queue, publish scheduled or approved social posts for a persona to X/Twitter, or sync X post results back into Notion. Requires the x-publish skill for the actual posting.
+description: Publish every "Ready to Post" Twitter row for a given persona from a Notion content database to X, then write the result back to each row (Status "Posted" plus Post URL on success, or an Error description on failure). Use this skill whenever an agent needs to work through a Notion posting queue, publish scheduled or approved social posts for a persona to X/Twitter, or sync X post results back into Notion. Requires the x-publish skill for the actual posting.
 ---
 
 # Notion → X Post Queue
@@ -27,9 +27,9 @@ Use only JoyStream connectors. Do not call Notion's or X's APIs directly.
 
 | Property | Expected type | Read / write |
 |---|---|---|
-| `Platform` | Select (or Status) | Read. Must equal `Twitter` |
+| `Platform` | Select | Read. Must equal `Twitter` |
 | `Persona` | Select or text | Read. Must equal `{persona}` |
-| `Status` | Status or Select | Read `Ready to Post`; write `Done` |
+| `Status` | Select | Read `Ready to Post`; write `Posted` |
 | `Formatted Copy` | Text or formula | Read. The post text |
 | `Post URL` | URL | Write |
 | `Error` | Text | Write |
@@ -42,9 +42,9 @@ Fetch the database with the Notion connector. Newer Notion workspaces place rows
 
 Confirm the following, and write down the actual type of `Status`, `Platform` and `Persona`, since filters and updates are written differently for Status, Select and text properties:
 - All six properties above exist.
-- `Status` has both a `Ready to Post` and a `Done` option.
+- `Status` has both a `Ready to Post` and a `Posted` option.
 
-If anything is missing, stop with an error naming exactly what is missing, and post nothing. Checking first matters because a post that can't be recorded as Done would be published again on the next run.
+If anything is missing, stop with an error naming exactly what is missing, and post nothing. Checking first matters because a post that can't be recorded as Posted would be published again on the next run.
 
 ### 2. Find the rows
 
@@ -66,14 +66,14 @@ Before posting, set aside rows that could produce a duplicate post. Report each 
 ### 4. Post each remaining row, one at a time, in order
 
 **a. Read the text.**
-- For a text property, join the `plain_text` of all segments. For a formula, use its string result.
+- Read the text only from property `Formatted Copy` and no other text property. If it is a formula type, use its string result.
 - Keep line breaks.
 - If a segment is a hyperlink whose URL doesn't appear in its visible text, post the visible text anyway, but add a warning for that row in the summary: X will not carry hidden links.
 
 **b. Post it.** Call x-publish with that text. Do not edit, shorten or clean up the copy; x-publish will reject it if it's invalid.
 
 **c. Write the result back to the row.**
-- **`ok: true`:** set `Status` = `Done`, `Post URL` = the returned `url`, and clear `Error`.
+- **`ok: true`:** set `Status` = `Posted`, `Post URL` = the returned `url`, and clear `Error`.
 - **`ok: false`:** leave `Status` unchanged. Set `Error` to `[{error_code}] {message} ({timestamp in UTC, ISO 8601})`, for example `[TOO_LONG] Text is 312 characters by X counting; limit is 280. (2026-09-24T10:15:00Z)`. The bracketed code at the start lets people filter on it, and step 3 relies on it.
 
 **d. If the Notion update fails after a successful post,** try the update once more; writing to Notion is safe to repeat. If it still fails, list the row under "posted but not recorded" in the summary, with its X URL. That row will be posted again on the next run unless someone fixes it, so it must be impossible to miss.
@@ -106,7 +106,7 @@ Omit sections that are empty, except `Posted`. Use the row's title property as `
 
 ## Rules
 
-- Never mark a row `Done` or write a `Post URL` unless x-publish returned `ok: true`.
+- Never mark a row `Posted` or write a `Post URL` unless x-publish returned `ok: true`.
 - Never touch rows for other platforms, personas or statuses.
 - Never ask questions. This skill runs on a schedule, so every problem becomes an Error on the row or a line in the summary.
 - The X account used is whichever X connection the running user has authenticated. The `persona` input selects rows only; it does not choose the X account.
