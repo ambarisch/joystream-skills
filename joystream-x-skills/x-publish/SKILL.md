@@ -1,6 +1,10 @@
 ---
 name: x-publish
 description: Publish one finished, text-only post to X (Twitter) through the JoyStream X/Twitter connector, with exact X character-count validation and normalized error codes. Returns the post URL on success or a stable error code plus description on failure. Use this skill whenever an agent needs to post, tweet, or publish copy to X/Twitter, including when posting is one step inside a larger workflow (e.g. publishing rows from a Notion content queue), so validation and error handling stay consistent across agents.
+compatibility: Requires the JoyStream X/Twitter connector and Python 3 (standard library only) for the bundled scripts.
+metadata:
+  version: "1.0.0"
+  author: JoyStream
 ---
 
 # X Publish
@@ -31,16 +35,7 @@ Failure:
 
 ### Error codes
 
-| Code | Meaning | Post went out? | What the caller should usually do |
-|---|---|---|---|
-| `EMPTY` | Text missing or only whitespace | No | Fix the copy |
-| `TOO_LONG` | Over 280 by X counting (from the script or from X) | No | Shorten the copy |
-| `AUTH` | Connector not connected, or token expired/revoked | No | Stop; the user must reconnect X |
-| `RATE_LIMIT` | 429 / usage cap | No | Stop; try again on a later run |
-| `DUPLICATE` | X rejected identical recent content | No | Human review |
-| `FORBIDDEN` | Account suspended/locked or action not permitted | No | Human review |
-| `UNKNOWN_OUTCOME` | Timeout, dropped connection, 5xx | **Maybe** | Do NOT re-post until a human checks X |
-| `OTHER` | Anything else | No | Human review |
+See [references/error-codes.md](references/error-codes.md) for what each code means and what callers should do. Codes: `EMPTY`, `TOO_LONG`, `AUTH`, `RATE_LIMIT`, `DUPLICATE`, `FORBIDDEN`, `UNKNOWN_OUTCOME` (the post **may** have gone out; never re-post until a human checks X), `OTHER`.
 
 ## Steps
 
@@ -61,7 +56,7 @@ The script prints JSON with `weighted_length`, `valid` and `empty`. X's counting
 - If `valid` is false and `empty` is true, return `EMPTY`.
 - If `valid` is false otherwise, return `TOO_LONG` with a message like "Text is {weighted_length} characters by X counting; limit is 280."
 
-If scripts cannot run in this environment, count manually using the rules in the script's header comment, and add `"count_method": "manual"` to the result.
+If scripts cannot run in this environment, count manually using the rules in [references/counting-rules.md](references/counting-rules.md), and add `"count_method": "manual"` to the result.
 
 Never shorten, reword, trim or "fix" the text to make it fit. Changing approved copy is the caller's decision, not this skill's.
 
@@ -79,7 +74,7 @@ Make one call only, with no automatic retry. A retry after an ambiguous failure 
   ```bash
   python3 scripts/classify_x_error.py --error "<raw error text or JSON>"
   ```
-  Return `ok: false` with the `error_code` it gives. The `message` should be short and human-readable: include the HTTP status and X's own wording when available, e.g. "429 Too Many Requests: rate limit reached". If scripts cannot run, apply the table above in the order listed; `DUPLICATE` is checked before `FORBIDDEN` because X reports duplicates as a 403.
+  Return `ok: false` with the `error_code` it gives. The `message` should be short and human-readable: include the HTTP status and X's own wording when available, e.g. "429 Too Many Requests: rate limit reached". If scripts cannot run, apply the classification order in [references/error-codes.md](references/error-codes.md).
 
 ## Rules
 

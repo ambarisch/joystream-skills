@@ -1,6 +1,11 @@
 ---
 name: notion-x-post-queue
 description: Publish every "Ready to Post" Twitter row for a given persona from a Notion content database to X, then write the result back to each row (Status "Posted" plus Post URL on success, or an Error description on failure). Use this skill whenever an agent needs to work through a Notion posting queue, publish scheduled or approved social posts for a persona to X/Twitter, or sync X post results back into Notion. Requires the x-publish skill for the actual posting.
+compatibility: Requires the JoyStream Notion connector and the x-publish skill (which needs the JoyStream X/Twitter connector).
+metadata:
+  version: "1.0.0"
+  author: JoyStream
+  depends-on: x-publish
 ---
 
 # Notion → X Post Queue
