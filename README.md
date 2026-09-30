@@ -4,7 +4,7 @@ Skill repository for the JoyStream agent library. Each collection is a folder of
 
 | Collection | Skills |
 |---|---|
-| [joystream-x-skills](joystream-x-skills/) | `x-publish`, `notion-x-post-queue` |
+| [joystream-social-skills](joystream-social-skills/) | `x-publish`, `linkedin-publish`, `notion-post-queue` |
 
 ## Import
 

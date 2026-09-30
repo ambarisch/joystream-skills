@@ -1,4 +1,4 @@
-# JoyStream X Skills
+# JoyStream Social Skills
 
 Two standard Claude skills, portable across platforms (JoyStream, Claude Code, or anywhere with Notion and X tools).
 
@@ -6,13 +6,13 @@ Two standard Claude skills, portable across platforms (JoyStream, Claude Code, o
 |---|---|---|
 | `x-publish` | Publishes one text post to X, with exact X character counting and normalized error codes. Returns the post URL or `{error_code, message}`. | An X posting tool |
 | `linkedin-publish` | Publishes one text post to the user's LinkedIn profile, with length validation (3000) and the same normalized error codes and contract as `x-publish`. Returns the post URL or `{error_code, message}`. | A LinkedIn posting tool |
-| `notion-x-post-queue` | Publishes every `Ready to Post` row for a persona and platform (default Twitter) from a Notion database, then writes back `Posted` + `Post URL`, or `Error`. | Notion tools, the platform's publish skill (`x-publish` for Twitter, `linkedin-publish` for LinkedIn) |
+| `notion-post-queue` | Publishes every `Ready to Post` row for a persona and platform (default Twitter) from a Notion database, then writes back `Posted` + `Post URL`, or `Error`. | Notion tools, the platform's publish skill (`x-publish` for Twitter, `linkedin-publish` for LinkedIn) |
 
 Neither skill names a specific connector. Each states the capabilities it needs and picks whichever available tool provides them, acting as the running user. Known tool names per platform are in each skill's `references/tool-hints.md`. If no matching tool exists, the run stops with `NO_TOOL`. The scripts in `x-publish/scripts/` use only the Python 3 standard library: no packages are installed and no network calls are made.
 
 ## Import
 
-Import this repo via git into JoyStream, then attach **both** skills to the agent that runs the queue. Use `notion-x-post-queue` as the entry skill; it calls `x-publish` for each post.
+Import this repo via git into JoyStream, then attach **all three** skills (`x-publish`, `linkedin-publish`, `notion-post-queue`) to the agent that runs the queue. Use `notion-post-queue` as the entry skill; it calls the platform's publish skill for each post.
 
 Agent inputs: `database_url`, `persona`, optional `platform` (default `Twitter`), optional `dry_run`. Triggers: manual or scheduled.
 
@@ -25,7 +25,7 @@ The skill checks all of these before posting anything, and stops with a clear er
 
 ## Contract between the skills
 
-`notion-x-post-queue` calls `x-publish` needing contract version 1 or higher (stops only if the callee's version is lower): [x-publish/references/contract.md](x-publish/references/contract.md). Input `{text, dry_run}`; output a JSON object with `contract`, `ok`, and `url` or `error_code` + `message`.
+`notion-post-queue` calls a publish skill (`x-publish` or `linkedin-publish`) needing contract version 1 or higher (stops only if the callee's version is lower): [x-publish/references/contract.md](x-publish/references/contract.md). Input `{text, dry_run}`; output a JSON object with `contract`, `ok`, and `url` or `error_code` + `message`.
 
 ## Dry run
 
@@ -49,7 +49,7 @@ Rows with `Error` starting with `[UNKNOWN_OUTCOME]` are held until a human check
 
 ## Test rows
 
-Queue behaviour: [notion-x-post-queue/references/test-cases.md](notion-x-post-queue/references/test-cases.md). Platform behaviour: [x-publish/references/test-cases.md](x-publish/references/test-cases.md), [linkedin-publish/references/test-cases.md](linkedin-publish/references/test-cases.md).
+Queue behaviour: [notion-post-queue/references/test-cases.md](notion-post-queue/references/test-cases.md). Platform behaviour: [x-publish/references/test-cases.md](x-publish/references/test-cases.md), [linkedin-publish/references/test-cases.md](linkedin-publish/references/test-cases.md).
 
 ## Tests
 

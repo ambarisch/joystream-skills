@@ -56,6 +56,6 @@ Version history:
 
 See [error-codes.md](error-codes.md). Callers must treat any code they do not recognise as `OTHER`, and ignore fields they do not recognise.
 
-## What `notion-x-post-queue` relies on
+## What `notion-post-queue` relies on
 
 Reads `contract`, `ok`, `url`, `error_code`, `message`. Stops the whole run on `AUTH`, `RATE_LIMIT` and `NO_TOOL`. Holds the row on `UNKNOWN_OUTCOME`.

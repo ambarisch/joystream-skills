@@ -1,9 +1,9 @@
 ---
-name: notion-x-post-queue
+name: notion-post-queue
 description: Publish every "Ready to Post" row for a given persona and platform (default Twitter/X; LinkedIn supported) from a Notion content database, then write the result back to each row (Status "Posted" plus Post URL on success, or an Error description on failure). Use this skill whenever an agent needs to work through a Notion posting queue, publish scheduled or approved social posts for a persona, or sync post results back into Notion. Requires the platform's publish skill (x-publish for Twitter, linkedin-publish for LinkedIn) for the actual posting.
 compatibility: Requires Notion tools in the session (MCP connector or equivalent) that can read a database schema, query rows and update pages, plus the publish skill for the platform (x-publish for Twitter, linkedin-publish for LinkedIn), each of which needs a posting tool for its platform.
 metadata:
-  version: "1.1.0"
+  version: "2.0.0"
   author: JoyStream
   depends-on: x-publish, linkedin-publish
   requires-contract: "1"   # minimum publish-skill contract version needed
