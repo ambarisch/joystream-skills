@@ -68,7 +68,7 @@ Never shorten, reword, trim or "fix" the text to make it fit. Changing approved 
 
 Find the posting tool as described under Required capability. Read its input schema before calling.
 
-If `dry_run` is true, stop here: return the dry-run result with the chosen tool's name and the `weighted_length`. Do not call the tool.
+If `dry_run` is true, stop here: return the dry-run result with the chosen tool's name (for a gateway, the action slug) and the `weighted_length`. Do not call the create-post tool.
 
 Otherwise call the tool once, putting the text in the one field that carries the post body. Pass the text exactly as received, preserving line breaks. Do not escape or add markup unless the tool's own description says it requires it. Leave every optional field unset (media, articles, polls, reshares and so on).
 

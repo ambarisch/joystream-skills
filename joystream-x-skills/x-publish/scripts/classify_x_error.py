@@ -13,9 +13,10 @@ Codes (checked in this order, first match wins):
   DUPLICATE        X rejected identical recent content (often sent as a 403)
   RATE_LIMIT       429 / too many requests / usage cap reached / 402 credits depleted
   AUTH             401, missing/expired/revoked token, connector not connected
+                   or unreachable (connection refused: the request never left)
   FORBIDDEN        403 for any other reason (suspended, locked, not permitted)
   TOO_LONG         X itself rejected the length
-  UNKNOWN_OUTCOME  timeout, connection dropped, 5xx: the post MAY have gone out
+  UNKNOWN_OUTCOME  timeout, connection reset/closed, 5xx: the post MAY have gone out
   OTHER            anything else
 
 NO_TOOL is never produced here: the skill raises it itself when no posting
@@ -34,14 +35,15 @@ RULES = [
     ("AUTH", False, [r"\b401\b", r"unauthori[sz]ed", r"not authenticated",
                      r"authenticat", r"invalid.{0,20}token", r"expired.{0,20}token",
                      r"token.{0,20}(expired|revoked|invalid)", r"credential",
-                     r"not connected", r"reconnect", r"oauth"]),
+                     r"not connected", r"reconnect", r"oauth",
+                     r"econnrefused", r"connection refused"]),
     ("FORBIDDEN", False, [r"\b403\b", r"forbidden", r"not permitted",
                           r"not allowed", r"suspended", r"locked"]),
     ("TOO_LONG", False, [r"too long", r"exceeds?.{0,30}(length|characters|280)",
                          r"text.{0,20}length"]),
     ("UNKNOWN_OUTCOME", False, [r"time[d ]?\s?out", r"timeout", r"\b50[0234]\b",
                                 r"bad gateway", r"service unavailable",
-                                r"connection (reset|closed|aborted|refused)",
+                                r"connection (reset|closed|aborted)",
                                 r"econnreset", r"socket hang up", r"no response"]),
 ]
 
