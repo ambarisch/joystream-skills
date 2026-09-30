@@ -5,7 +5,7 @@ Two standard Claude skills, portable across platforms (JoyStream, Claude Code, o
 | Skill | What it does | Depends on |
 |---|---|---|
 | `x-publish` | Publishes one text post to X, with exact X character counting and normalized error codes. Returns the post URL or `{error_code, message}`. | An X posting tool |
-| `notion-x-post-queue` | Publishes every `Ready to Post` Twitter row for a persona from a Notion database, then writes back `Posted` + `Post URL`, or `Error`. | Notion tools, `x-publish` |
+| `notion-x-post-queue` | Publishes every `Ready to Post` row for a persona and platform (default Twitter) from a Notion database, then writes back `Posted` + `Post URL`, or `Error`. | Notion tools, the platform's publish skill (`x-publish` for Twitter) |
 
 Neither skill names a specific connector. Each states the capabilities it needs and picks whichever available tool provides them, acting as the running user. Known tool names per platform are in each skill's `references/tool-hints.md`. If no matching tool exists, the run stops with `NO_TOOL`. The scripts in `x-publish/scripts/` use only the Python 3 standard library: no packages are installed and no network calls are made.
 
@@ -13,11 +13,11 @@ Neither skill names a specific connector. Each states the capabilities it needs 
 
 Import this repo via git into JoyStream, then attach **both** skills to the agent that runs the queue. Use `notion-x-post-queue` as the entry skill; it calls `x-publish` for each post.
 
-Agent inputs: `database_url`, `persona`, optional `dry_run`. Triggers: manual or scheduled.
+Agent inputs: `database_url`, `persona`, optional `platform` (default `Twitter`), optional `dry_run`. Triggers: manual or scheduled.
 
 ## Notion database requirements
 
-- **Read:** `Platform` (`Twitter`), `Persona`, `Status` (`Ready to Post`), `Formatted Copy`.
+- **Read:** `Platform` (the `platform` input, default `Twitter`), `Persona`, `Status` (`Ready to Post`), `Formatted Copy`.
 - **Write:** `Status` (`Posted`), `Post URL` (URL type), `Error` (text type).
 
 The skill checks all of these before posting anything, and stops with a clear error if any are missing.
@@ -48,7 +48,7 @@ Rows with `Error` starting with `[UNKNOWN_OUTCOME]` are held until a human check
 
 ## Test rows
 
-See [notion-x-post-queue/references/test-cases.md](notion-x-post-queue/references/test-cases.md).
+Queue behaviour: [notion-x-post-queue/references/test-cases.md](notion-x-post-queue/references/test-cases.md). Platform behaviour (X): [x-publish/references/test-cases.md](x-publish/references/test-cases.md).
 
 ## Tests
 

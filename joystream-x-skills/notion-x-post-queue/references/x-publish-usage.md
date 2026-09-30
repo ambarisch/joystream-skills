@@ -1,6 +1,6 @@
-# How this skill calls x-publish
+# How this skill calls the publish skill
 
-The authoritative contract is `x-publish/references/contract.md`. This skill needs contract version **1 or higher** (`requires-contract` in its frontmatter). Summary of what it depends on:
+The publish skill for a platform is chosen from the Publish skills table in `SKILL.md`; today that is `x-publish` for `Twitter`. The authoritative contract is `x-publish/references/contract.md`. This skill needs contract version **1 or higher** (`requires-contract` in its frontmatter). Summary of what it depends on:
 
 - **Sends:** `{text, dry_run}`. `text` is exactly the `Formatted Copy` value; `dry_run` is passed through from this skill's input.
 - **Reads:** `contract`, `ok`, `url`, `error_code`, `message`, `dry_run`. Ignores every other field.
