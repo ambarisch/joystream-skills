@@ -6,7 +6,7 @@
 | `TOO_LONG` | Over 280 by X counting (from the script or from X) | No | Shorten the copy |
 | `NO_TOOL` | No tool in this session can create an X post | No | Stop; the environment needs an X connector |
 | `AUTH` | Connector not connected, or token expired/revoked | No | Stop; the user must reconnect X |
-| `RATE_LIMIT` | 429 / usage cap | No | Stop; try again on a later run |
+| `RATE_LIMIT` | 429 / usage cap / 402 credits depleted | No | Stop; try again on a later run |
 | `DUPLICATE` | X rejected identical recent content | No | Human review |
 | `FORBIDDEN` | Account suspended/locked or action not permitted | No | Human review |
 | `UNKNOWN_OUTCOME` | Timeout, dropped connection, 5xx | **Maybe** | Do NOT re-post until a human checks X |

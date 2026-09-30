@@ -11,7 +11,7 @@ Prints JSON: {"error_code": "RATE_LIMIT", "retryable": true, "message": "..."}
 
 Codes (checked in this order, first match wins):
   DUPLICATE        X rejected identical recent content (often sent as a 403)
-  RATE_LIMIT       429 / too many requests / usage cap reached
+  RATE_LIMIT       429 / too many requests / usage cap reached / 402 credits depleted
   AUTH             401, missing/expired/revoked token, connector not connected
   FORBIDDEN        403 for any other reason (suspended, locked, not permitted)
   TOO_LONG         X itself rejected the length
@@ -29,7 +29,8 @@ import sys
 RULES = [
     ("DUPLICATE", False, [r"duplicate"]),
     ("RATE_LIMIT", True, [r"\b429\b", r"too many requests", r"rate.?limit",
-                          r"usage.?cap", r"quota"]),
+                          r"usage.?cap", r"quota", r"\b402\b", r"payment required",
+                          r"credits?.{0,20}(depleted|exhausted)"]),
     ("AUTH", False, [r"\b401\b", r"unauthori[sz]ed", r"not authenticated",
                      r"authenticat", r"invalid.{0,20}token", r"expired.{0,20}token",
                      r"token.{0,20}(expired|revoked|invalid)", r"credential",

@@ -50,6 +50,8 @@ class Classify(unittest.TestCase):
     def test_codes(self):
         cases = {
             "429 Too Many Requests": "RATE_LIMIT",
+            "HTTP error 402: Payment Required - credits depleted": "RATE_LIMIT",
+            "API credits exhausted": "RATE_LIMIT",
             "403 Forbidden: duplicate content": "DUPLICATE",
             "401 Unauthorized": "AUTH",
             "403 account suspended": "FORBIDDEN",
