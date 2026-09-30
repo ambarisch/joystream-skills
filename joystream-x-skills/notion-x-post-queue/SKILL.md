@@ -97,7 +97,7 @@ Before posting, set aside rows that could produce a duplicate post. Report each 
 
 **a. Read the text.**
 - Read the text only from property `Formatted Copy` and no other text property. If it is a formula type, use its string result.
-- Keep line breaks.
+- Keep line breaks. If the Notion tool encodes them as `<br>` tags, convert each `<br>` to a newline before posting; this is decoding the tool's output, not editing the copy.
 - If a segment is a hyperlink whose URL doesn't appear in its visible text, post the visible text anyway, but add a warning for that row in the summary: X will not carry hidden links.
 
 **b. Post it.** Call x-publish with `{text}` (plus `dry_run: true` when this run is a dry run). Do not edit, shorten or clean up the copy; x-publish will reject it if it's invalid.
