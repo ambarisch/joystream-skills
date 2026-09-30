@@ -21,8 +21,9 @@ This skill is a building block. It does not choose what to post, when to post, o
 Find the tool that provides it:
 1. Look at the tools available in this session and choose the one whose description says it creates a post/tweet on X (Twitter). Names vary by platform; go by the description and input schema. Known names are in [references/tool-hints.md](references/tool-hints.md) and are hints only.
 2. Prefer a tool that acts as the running user's own connected account.
-3. Do not call X's HTTP API, scripts, browsers or any other route to post.
-4. If no tool provides the capability, return `NO_TOOL` and stop. Do not try to work around it.
+3. If there is no direct tool but the session has a **tool gateway** (a few generic tools to search for, describe and run actions in other apps), use it: search for the X create-post action, read its schema, and run only that action through the gateway's executor. In a dry run, use only the gateway's search and schema tools, never its executor.
+4. Do not call X's HTTP API, scripts, browsers or any other route to post.
+5. If no tool or gateway action provides the capability, or the gateway has no active X connection, return `NO_TOOL` and stop. Do not try to work around it.
 
 ## Contract
 

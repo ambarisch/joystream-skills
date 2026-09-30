@@ -11,4 +11,7 @@ Use a test LinkedIn profile. Run `linkedin-publish` directly with `{text}` (or w
 7. Whitespace-only text. Expect `EMPTY`, and no tool call.
 8. Post #3's exact text again. Expect `DUPLICATE` if LinkedIn rejects it; if LinkedIn accepts it, record that here.
 9. Disconnect LinkedIn. Expect `AUTH`.
-10. A tool that requires an author or organization id the session cannot supply. Expect `OTHER` naming the required field, and no post.
+10. A tool that requires an author. Expect the skill to resolve it from the own-profile action (a `urn:li:person:` value), never an organization, and to post as you.
+11. A tool that requires some other field the session cannot supply, or an own-profile lookup that fails. Expect `OTHER` naming what is missing, and no post.
+12. A session that only has a tool gateway. Dry run: expect the create-post action to be found by search and its schema read, with the executor never called. Live: expect one execution of the create-post action only.
+13. Gateway with no active LinkedIn connection. Expect `NO_TOOL`.

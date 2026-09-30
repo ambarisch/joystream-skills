@@ -1,7 +1,7 @@
 ---
 name: linkedin-publish
 description: Publish one finished, text-only post to LinkedIn (the running user's own profile) through whichever LinkedIn tool is available in the session, with LinkedIn length validation and normalized error codes. Returns the post URL on success or a stable error code plus description on failure. Use this skill whenever an agent needs to post or publish copy to LinkedIn, including when posting is one step inside a larger workflow (e.g. publishing rows from a Notion content queue), so validation and error handling stay consistent across agents.
-compatibility: Requires a tool in the session (MCP connector or equivalent) that can create a LinkedIn post as the running user. Python 3 (standard library only) is used for the bundled scripts, with a manual fallback.
+compatibility: Requires a tool in the session (MCP connector, tool gateway or equivalent) that can create a LinkedIn post as the running user. Python 3 (standard library only) is used for the bundled scripts, with a manual fallback.
 metadata:
   version: "1.0.0"
   contract: "1"   # integer contract version implemented; see references/contract.md
@@ -23,8 +23,9 @@ It implements the same contract as `x-publish`, so a caller can use either one t
 Find the tool that provides it:
 1. Look at the tools available in this session and choose the one whose description says it creates a post (share) on LinkedIn. Names vary by platform; go by the description and input schema. Known names are in [references/tool-hints.md](references/tool-hints.md) and are hints only.
 2. Prefer a tool that acts as the running user's own connected account.
-3. Do not call LinkedIn's HTTP API, scripts, browsers or any other route to post.
-4. If no tool provides the capability, return `NO_TOOL` and stop. Do not try to work around it.
+3. If there is no direct tool but the session has a **tool gateway** (a few generic tools to search for, describe and run actions in other apps), use it: search for the LinkedIn create-post action, read that action's schema, and run only that action through the gateway's executor. In a dry run, use only the gateway's search and schema tools, never its executor.
+4. Do not call LinkedIn's HTTP API, scripts, browsers or any other route to post.
+5. If no tool or gateway action provides the capability, or the gateway has no active LinkedIn connection, return `NO_TOOL` and stop. Do not try to work around it.
 
 ## Contract
 
@@ -71,13 +72,15 @@ If `dry_run` is true, stop here: return the dry-run result with the chosen tool'
 
 Otherwise call the tool once, putting the text in the one field that carries the post body. Pass the text exactly as received, preserving line breaks. Do not escape or add markup unless the tool's own description says it requires it. Leave every optional field unset (media, articles, polls, reshares and so on).
 
-Some tools require fields that only say the post is a normal public post. Those may be set to: visibility `PUBLIC`, lifecycle state `PUBLISHED`, and the feed distribution default. If the schema requires anything else that you cannot fill from `text` alone (an organization or author id, media, a title), return `OTHER` explaining what is required. Do not guess values.
+**Author.** If the tool requires an author, get it from a read-only "get my own profile" action of the same connector (yourself only). Build `urn:li:person:{id}` from the member id it returns, exactly as returned; if it returns a full URN, use that. Never use an organization URN, never look up other people, and never invent an id. A dry run may make this one read-only call to confirm the author can be resolved.
+
+**Other fields.** Leave visibility, lifecycle state and distribution at the tool's defaults. If the schema makes them required, use visibility `PUBLIC`, lifecycle state `PUBLISHED` and the main-feed distribution. If the schema requires anything else that you cannot fill from `text` alone (media, a title), return `OTHER` explaining what is required. Do not guess values.
 
 Make one call only, with no automatic retry. A retry after an ambiguous failure is how duplicate posts happen.
 
 ### 3. Build the result
 
-- **Success.** Take the post identifier from the tool's response: usually a URN such as `urn:li:share:123` or `urn:li:ugcPost:123` in `id` (sometimes `data.id`, `post_urn`, or an `x-restli-id` value). Return `ok: true` with `post_urn` = that URN and `url` = `https://www.linkedin.com/feed/update/{urn}/`.
+- **Success.** Take the post identifier from the tool's response: usually a URN such as `urn:li:share:123` or `urn:li:ugcPost:123` in `id` (sometimes `data.id`, `post_urn`, `x_restli_id` or `data.x_restli_id`). Return `ok: true` with `post_urn` = that URN and `url` = `https://www.linkedin.com/feed/update/{urn}/`.
   - If the tool returns a full post URL instead, use it as `url`, and use the URN from it if present.
   - If the action reports success but no identifier or URL can be found, return `UNKNOWN_OUTCOME` with message "Tool reported success but returned no post id". Never construct or guess a URL.
 - **Failure.** Classify the raw error:
@@ -93,5 +96,6 @@ Make one call only, with no automatic retry. A retry after an ambiguous failure 
 - Never ask the user questions. This skill runs inside unattended and scheduled agents, so missing or bad input becomes an error result.
 - Use only tools the session provides for LinkedIn, chosen by capability. Do not call LinkedIn's API or any other external service directly.
 - Post only to the running user's own profile, never to an organization page.
+- Through a gateway, run only the one create-post action (and the read-only own-profile lookup). Never run other actions such as delete, comment or company-page posting.
 - `dry_run: true` never posts, on any path.
 - Always include `contract: 1` in the result.
