@@ -5,7 +5,8 @@ Two standard Claude skills, portable across platforms (JoyStream, Claude Code, o
 | Skill | What it does | Depends on |
 |---|---|---|
 | `x-publish` | Publishes one text post to X, with exact X character counting and normalized error codes. Returns the post URL or `{error_code, message}`. | An X posting tool |
-| `notion-x-post-queue` | Publishes every `Ready to Post` row for a persona and platform (default Twitter) from a Notion database, then writes back `Posted` + `Post URL`, or `Error`. | Notion tools, the platform's publish skill (`x-publish` for Twitter) |
+| `linkedin-publish` | Publishes one text post to the user's LinkedIn profile, with length validation (3000) and the same normalized error codes and contract as `x-publish`. Returns the post URL or `{error_code, message}`. | A LinkedIn posting tool |
+| `notion-x-post-queue` | Publishes every `Ready to Post` row for a persona and platform (default Twitter) from a Notion database, then writes back `Posted` + `Post URL`, or `Error`. | Notion tools, the platform's publish skill (`x-publish` for Twitter, `linkedin-publish` for LinkedIn) |
 
 Neither skill names a specific connector. Each states the capabilities it needs and picks whichever available tool provides them, acting as the running user. Known tool names per platform are in each skill's `references/tool-hints.md`. If no matching tool exists, the run stops with `NO_TOOL`. The scripts in `x-publish/scripts/` use only the Python 3 standard library: no packages are installed and no network calls are made.
 
@@ -48,12 +49,13 @@ Rows with `Error` starting with `[UNKNOWN_OUTCOME]` are held until a human check
 
 ## Test rows
 
-Queue behaviour: [notion-x-post-queue/references/test-cases.md](notion-x-post-queue/references/test-cases.md). Platform behaviour (X): [x-publish/references/test-cases.md](x-publish/references/test-cases.md).
+Queue behaviour: [notion-x-post-queue/references/test-cases.md](notion-x-post-queue/references/test-cases.md). Platform behaviour: [x-publish/references/test-cases.md](x-publish/references/test-cases.md), [linkedin-publish/references/test-cases.md](linkedin-publish/references/test-cases.md).
 
 ## Tests
 
 ```bash
 python3 -m unittest discover -s x-publish/scripts -p 'test_*.py'
+python3 -m unittest discover -s linkedin-publish/scripts -p 'test_*.py'
 ```
 
 ## Script self-check
