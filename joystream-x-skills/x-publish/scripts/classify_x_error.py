@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Map a raw error from the X connector to a stable error code, so callers can
+Map a raw error from the X posting tool to a stable error code, so callers can
 branch on a code instead of interpreting free-form error text.
 
 Usage:
@@ -17,6 +17,9 @@ Codes (checked in this order, first match wins):
   TOO_LONG         X itself rejected the length
   UNKNOWN_OUTCOME  timeout, connection dropped, 5xx: the post MAY have gone out
   OTHER            anything else
+
+NO_TOOL is never produced here: the skill raises it itself when no posting
+tool exists.
 """
 import argparse
 import json
